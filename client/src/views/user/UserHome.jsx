@@ -11,6 +11,7 @@ const UserHome = () => {
   
   const handleSearch = async () => {
     try {
+      debugger
       if (!userID) {
         alert("Enter User ID")
         return
@@ -18,11 +19,11 @@ const UserHome = () => {
       const userAPI = await axios.get(`user/find/${userID}`)
       if (userAPI.status === 200) {
         clearFields()
-        const json = await userAPI.data[0]
+        const json = await userAPI.data
 
-        setUserID(json.userID)
-        setFName(json.fName)
-        setLName(json.lName)
+        setUserID(json.user_id)
+        setFName(json.f_name)
+        setLName(json.l_name)
       }
       if (userAPI.status === 204) {
         alert("No record found")
@@ -34,9 +35,11 @@ const UserHome = () => {
 
   const handleShowAll = async () => {
     try {
+      debugger
       const userAPI = await axios.get(`user/all`)
       if (userAPI.status === 200) {
         const json = await userAPI.data
+        console.log(json)
         setUsers(json)
       }
       if (userAPI.status === 400) {
@@ -160,9 +163,9 @@ const UserHome = () => {
                     return (
                       <TableRow TableRow
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                        <TableCell align="center">{val.userID}</TableCell>
-                        <TableCell align="center">{val.fName}</TableCell>
-                        <TableCell align="center">{val.lName}</TableCell>
+                        <TableCell align="center">{val.user_id}</TableCell>
+                        <TableCell align="center">{val.f_name}</TableCell>
+                        <TableCell align="center">{val.l_name}</TableCell>
                       </TableRow>
                     )
                   })}

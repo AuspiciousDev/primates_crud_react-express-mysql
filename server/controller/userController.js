@@ -6,7 +6,7 @@ const userController = {
     try {
       const query = await DBConnection
         .connectDB()
-        .query("SELECT * FROM tblUser")
+        .query("SELECT * FROM tblUser INNER JOIN tblUserDetails ON tblUser.user_id = tblUserDetails.user_id")
 
       let dataset = query[0].map(data => { return { ...data } })
       if (dataset.length < 1) {
@@ -21,20 +21,20 @@ const userController = {
 
   getUser: async (req, res) => {
     try {
-      if (!req.params.id) {
+      if (!req.params.user_id) {
         return res.status(400).json({ message: "User ID is required!" })
       }
-      const userID = req.params.id
+      const user_id = req.params.user_id
 
       const query = await DBConnection
         .connectDB()
-        .query(`SELECT * FROM tblUser WHERE userID = '${userID}'`)
+        .query(`SELECT * FROM tblUser INNER JOIN tblUserDetails ON tblUser.user_id = tblUserDetails.user_id WHERE tblUser.user_id = '${user_id}'`)
 
       let dataset = query[0].map(data => { return { ...data } })
       if (dataset.length < 1) {
         return res.status(204).json()
       }
-      return res.status(200).json(dataset)
+      return res.status(200).json(dataset[0])
     } catch (error) {
       res.status(500).json({ message: error.message });
       console.log({ message: error.message })
@@ -43,20 +43,20 @@ const userController = {
 
   addUser: async (req, res) => {
     try {
-      const { userID, password, fName, lName } = req.body
+      const { user_id, password, f_name, l_name } = req.body
       let emptyFields = []
 
-      if (!userID) {
-        emptyFields.push("userID")
+      if (!user_id) {
+        emptyFields.push("user_id")
       }
       if (!password) {
         emptyFields.push("password")
       }
-      if (!fName) {
-        emptyFields.push("fName")
+      if (!f_name) {
+        emptyFields.push("f_name")
       }
-      if (!lName) {
-        emptyFields.push("lName")
+      if (!l_name) {
+        emptyFields.push("l_name")
       }
 
       if (emptyFields.length > 0) {
@@ -65,7 +65,7 @@ const userController = {
 
       const checkIfExists = await DBConnection
         .connectDB()
-        .query(`SELECT * FROM tblUser WHERE userID = '${userID}'`)
+        .query(`SELECT * FROM tblUser WHERE user_id = '${user_id}'`)
 
       let dataset = checkIfExists[0].map(data => { return { ...data } })
       if (dataset.length > 0) {
@@ -74,7 +74,7 @@ const userController = {
 
       const query = await DBConnection
         .connectDB()
-        .query(`INSERT INTO tblUser VALUES('${userID}', '${password}', '${fName}', '${lName}')`)
+        .query(`INSERT INTO tblUser VALUES('${user_id}', '${password}', '${f_name}', '${l_name}')`)
 
       if (query[0].serverStatus === 2) {
         return res.status(200).json({ message: "Success" })
@@ -90,9 +90,9 @@ const userController = {
 
   changePassword: async (req, res) => {
     try {
-      const { userID, password } = req.body
+      const { user_id, password } = req.body
 
-      if (!userID) {
+      if (!user_id) {
         return res.status(400).json({ message: "User ID is required!" })
       }
       if (!password) {
@@ -101,7 +101,7 @@ const userController = {
 
       const checkIfExists = await DBConnection
         .connectDB()
-        .query(`SELECT * FROM tblUser WHERE userID = '${userID}'`)
+        .query(`SELECT * FROM tblUser WHERE user_id = '${user_id}'`)
 
       let dataset = checkIfExists[0].map(data => { return { ...data } })
       if (dataset.length < 1) {
@@ -110,7 +110,7 @@ const userController = {
 
       const query = await DBConnection
         .connectDB()
-        .query(`UPDATE tblUser SET password = '${password}' WHERE userID = '${userID}'`)
+        .query(`UPDATE tblUser SET password = '${password}' WHERE user_id = '${user_id}'`)
 
       if (query[0].serverStatus === 2) {
         return res.status(200).json({ message: "Success" })
@@ -125,14 +125,14 @@ const userController = {
 
   deleteUser: async (req, res) => {
     try {
-      if (!req.params.id) {
+      if (!req.params.user_id) {
         return res.status(400).json({ message: "User ID is required!" })
       }
-      const userID = req.params.id
+      const user_id = req.params.user_id
 
       const checkIfExists = await DBConnection
         .connectDB()
-        .query(`SELECT * FROM tblUser WHERE userID = '${userID}'`)
+        .query(`SELECT * FROM tblUser WHERE user_id = '${user_id}'`)
 
       let dataset = checkIfExists[0].map(data => { return { ...data } })
       if (dataset.length < 1) {
@@ -141,7 +141,7 @@ const userController = {
 
       const query = await DBConnection
         .connectDB()
-        .query(`DELETE FROM tblUser WHERE userID = '${userID}'`)
+        .query(`DELETE FROM tblUser WHERE user_id = '${user_id}'`)
 
       if (query[0].serverStatus === 2) {
         return res.status(200).json({ message: "Success" })
